@@ -30,6 +30,219 @@
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
       rel="stylesheet"
     />
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <!-- <script src="https://kit.fontawesome.com/your-kit-code.js"></script> -->
+    <style>
+      /* Avatar Container */
+      .avatar-container {
+        width: 112px;
+        height: 112px;
+        perspective: 1000px;
+        background: var(--bg-gradient-onyx);
+        border-radius: 20px;
+        position: relative;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      }
+
+      .avatar-container:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+      }
+
+      .avatar-flipper {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        transform-style: preserve-3d;
+        transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .avatar-container:hover .avatar-flipper {
+        transform: rotateY(180deg) scale(1.05);
+      }
+
+      .avatar-front,
+      .avatar-back {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden;
+        border-radius: 20px;
+        overflow: hidden;
+        background: var(--bg-gradient-onyx);
+        transition: all 0.4s ease;
+      }
+
+      .avatar-front::before,
+      .avatar-back::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          45deg,
+          transparent 0%,
+          rgba(255, 255, 255, 0.1) 45%,
+          rgba(255, 255, 255, 0.2) 50%,
+          rgba(255, 255, 255, 0.1) 55%,
+          transparent 100%
+        );
+        opacity: 0;
+        transition: opacity 0.4s ease;
+      }
+
+      .avatar-container:hover .avatar-front::before,
+      .avatar-container:hover .avatar-back::before {
+        opacity: 1;
+        animation: gradientMove 2s linear infinite;
+      }
+
+      .avatar-back {
+        transform: rotateY(180deg);
+        background: var(--bg-gradient-onyx);
+      }
+
+      .avatar-front img,
+      .avatar-back img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.4s ease;
+        filter: brightness(0.95);
+      }
+
+      .avatar-container:hover .avatar-front img,
+      .avatar-container:hover .avatar-back img {
+        transform: scale(1.1);
+        filter: brightness(1.05);
+      }
+
+      /* Enhanced shine effect */
+      .shine {
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 50%;
+        height: 100%;
+        background: linear-gradient(
+          to right,
+          transparent 0%,
+          rgba(255, 255, 255, 0.2) 50%,
+          transparent 100%
+        );
+        transform: skewX(-25deg);
+        animation: shine 4s ease-in-out infinite;
+      }
+
+      /* Border glow effect */
+      .avatar-container::after {
+        content: "";
+        position: absolute;
+        inset: -2px;
+        border-radius: 22px;
+        background: linear-gradient(
+          45deg,
+          var(--bg-gradient-yellow-1),
+          var(--bg-gradient-jet),
+          var(--bg-gradient-yellow-1)
+        );
+        z-index: -1;
+        opacity: 0;
+        transition: opacity 0.4s ease;
+        animation: borderGlow 3s linear infinite;
+      }
+
+      .avatar-container:hover::after {
+        opacity: 1;
+      }
+
+      /* Sidebar integration */
+      .sidebar-info {
+        position: relative;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .sidebar.active .avatar-container {
+        transform: scale(1.05);
+        transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      /* Enhanced animations */
+      @keyframes shine {
+        0% {
+          left: -100%;
+          opacity: 0;
+        }
+        10% {
+          opacity: 1;
+        }
+        40% {
+          left: 200%;
+          opacity: 0;
+        }
+        100% {
+          left: 200%;
+          opacity: 0;
+        }
+      }
+
+      @keyframes gradientMove {
+        0% {
+          background-position: 0% 0%;
+        }
+        100% {
+          background-position: 200% 0%;
+        }
+      }
+
+      @keyframes borderGlow {
+        0% {
+          background-position: 0% 0%;
+        }
+        50% {
+          background-position: 100% 0%;
+        }
+        100% {
+          background-position: 0% 0%;
+        }
+      }
+
+      /* Responsive design */
+      @media (max-width: 580px) {
+        .avatar-container {
+          width: 80px;
+          height: 80px;
+        }
+
+        .avatar-container::after {
+          inset: -1px;
+          border-radius: 16px;
+        }
+      }
+
+      /* Loading animation */
+      @keyframes pulseLoad {
+        0% {
+          opacity: 0.6;
+          transform: scale(0.98);
+        }
+        50% {
+          opacity: 1;
+          transform: scale(1);
+        }
+        100% {
+          opacity: 0.6;
+          transform: scale(0.98);
+        }
+      }
+
+      .avatar-container.loading {
+        animation: pulseLoad 1.5s ease-in-out infinite;
+      }
+    </style>
   </head>
 
   <body>
@@ -44,13 +257,31 @@
 
       <aside class="sidebar" data-sidebar>
         <div class="sidebar-info">
-          <figure class="avatar-box">
-            <img
-              src="assests/images/my-avatar.png"
-              alt="Sahil A Gowda"
-              width="80"
-            />
-          </figure>
+          <div class="avatar-box">
+            <div class="avatar-container">
+              <div class="avatar-flipper">
+                <div class="avatar-front">
+                  <!-- Replace with your avatar image -->
+                  <img
+                    src="assests/images/my-avatar.png"
+                    alt="Avatar"
+                    width="112"
+                    height="112"
+                  />
+                  <div class="shine"></div>
+                </div>
+                <div class="avatar-back">
+                  <!-- Replace with your photo -->
+                  <img
+                    src="assests/images/me1 (1).png"
+                    alt="Your Photo"
+                    width="112"
+                    height="112"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
 
           <div class="info-content">
             <h1 class="name" title="Sahil A Gowda">Sahil A Gowda</h1>
@@ -191,20 +422,23 @@
 
           <section class="about-text">
             <p>
-              I am Motivated individual currently pursuing B.E in the field of
-              Computer Science and Engineering . Looking to leverage
-              transferable skills such as leadership qualities,communication
-              skills ,problem solving, and a fresh academic perspective in CSE
-              Field. Committed to making a meaningful contribution while
-              acquiring new skills and insights
+              I am a passionate Computer Science and Engineering student with a
+              proven track record in problem-solving, leadership, and effective
+              communication. I thrive on transforming complex challenges into
+              innovative solutions and am dedicated to continuous learning in
+              today’s fast-paced tech world.
             </p>
-
             <p>
-              I am dedicated to continuous learning and problem-solving. Whether
-              it’s mastering new programming languages, tackling complex
-              challenges, or staying updated on emerging trends, I am focused on
-              honing the skills necessary to make a meaningful impact in the
-              tech industry.
+              My enthusiasm for mastering emerging technologies and staying
+              ahead of industry trends drives me to blend academic insights with
+              practical experience. I aim to make a significant impact by
+              collaborating with dynamic teams and pushing the boundaries of
+              what’s possible in technology.
+            </p>
+            <p>
+              I am eager to contribute my skills and energy to projects that
+              challenge the status quo, ensuring that every step I take advances
+              the field and creates lasting value.
             </p>
           </section>
 
@@ -496,7 +730,10 @@
               </li>
 
               <li class="clients-item">
-                <a href="https://www.codechef.com/users/sahilgowda204" target="_blank">
+                <a
+                  href="https://www.codechef.com/users/sahilgowda204"
+                  target="_blank"
+                >
                   <img src="assests/images/CODECHEF.jpg" alt="CodeChef Logo" />
                 </a>
               </li>
@@ -511,7 +748,10 @@
               </li>
 
               <li class="clients-item">
-                <a href="https://www.hackerearth.com/" target="_blank">
+                <a
+                  href="https://www.hackerearth.com/@sahilgowda204/"
+                  target="_blank"
+                >
                   <img
                     src="assests/images/hackerearth.png"
                     alt="HackerEarth Logo"
@@ -520,7 +760,10 @@
               </li>
 
               <li class="clients-item">
-                <a href="https://www.codingninjas.com/" target="_blank">
+                <a
+                  href="https://www.naukri.com/code360/profile/06a52df7-66c3-4ffe-b6f6-3de2cc56defb"
+                  target="_blank"
+                >
                   <img
                     src="assests/images/coding_ninja.webp"
                     alt="Coding Ninjas Logo"
