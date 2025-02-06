@@ -381,3 +381,79 @@ document.addEventListener("DOMContentLoaded", () => {
   new ContactForm();
   new Navigation();
 });
+
+// Get DOM elements
+const filterButtons = document.querySelectorAll('[data-filter-btn]');
+const filterItems = document.querySelectorAll('[data-filter-item]');
+const filterSelect = document.querySelector('.filter-select');
+const selectList = document.querySelector('.select-list');
+const selectValue = document.querySelector('[data-selecct-value]');
+const selectItems = document.querySelectorAll('[data-select-item]');
+
+// Filter items based on category
+const filterFunc = (selectedValue) => {
+  selectedValue = selectedValue.toLowerCase();  // Convert to lowercase for comparison
+  filterItems.forEach(item => {
+    if (selectedValue === 'all') {
+      item.classList.add('active');  // Show all items when "All" is selected
+    } else {
+      const category = item.getAttribute('data-category').toLowerCase();
+      if (category === selectedValue) {
+        item.classList.add('active');
+      } else {
+        item.classList.remove('active');
+      }
+    }
+  });
+};
+
+// Add click event listeners to filter buttons
+filterButtons.forEach(button => {
+  button.addEventListener('click', () => {
+    const selectedValue = button.textContent.trim();
+    selectValue.textContent = selectedValue;
+    filterFunc(selectedValue);
+    
+    // Update active state of buttons
+    filterButtons.forEach(btn => btn.classList.remove('active'));
+    button.classList.add('active');
+  });
+});
+
+// Handle dropdown select functionality
+filterSelect.addEventListener('click', () => {
+  selectList.classList.toggle('show');
+});
+
+// Close dropdown when clicking outside
+document.addEventListener('click', (e) => {
+  if (!filterSelect.contains(e.target)) {
+    selectList.classList.remove('show');
+  }
+});
+
+// Handle select items in dropdown
+selectItems.forEach(item => {
+  item.addEventListener('click', () => {
+    const selectedValue = item.textContent.trim();
+    selectValue.textContent = selectedValue;
+    filterFunc(selectedValue);
+    selectList.classList.remove('show');
+    
+    // Update active state of buttons
+    filterButtons.forEach(btn => {
+      if (btn.textContent.trim() === selectedValue) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+  });
+});
+
+// Initialize with "All" selected to show all projects on page load
+window.addEventListener('load', () => {
+  filterFunc('all');
+  filterButtons[0].classList.add('active');  // Activate the "All" button by default
+  selectValue.textContent = 'All';
+});
